@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Vue Api</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Modern Weather App</a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavAltMarkup"
+                    aria-controls="navbarNavAltMarkup"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        <a class="nav-link" href="#">Clock & Timer</a>
+                        <a class="nav-link" href="#">Other Apps</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <form class="d-flex" role="search">
+             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+             <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+        <div class="class main" style="display: flex;justify-content: center;"> 
+            <div class="card mb-3" style="max-width: 540px" id="app">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="/Visit Nairobi, Kenya.png" class="img-fluid rounded-start" alt="..." />
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title"></h5>
+                            <p class="card-text">
+                                 <!-- <span>{{ test }}</span> -->
+                                <p>GMT : {{ metrics.timezone/3600 }}</p>
+                                <p>Location: {{ metrics.name }}</p>
+                                <p>Local time : {{ formattedLocalTime }}</p>
+                                <p v-if="metrics.weather && metrics.weather[0]">
+                                Symbol:
+                                <img
+                                    :src="'https://openweathermap.org/img/wn/' + metrics.weather[0].icon + '@2x.png'"
+                                    alt="Weather Icon"
+                                />
+                                </p>
+                                <p v-if="metrics.main">Temperature: {{ metrics.main.temp }} Kelvin</p>
+                                <p v-if="metrics.weather && metrics.weather[0]">
+                                    Weather Descriptions: {{ metrics.weather[0].description }}
+                                </p>
+                                <p v-if="metrics.wind">Wind Speed: {{ metrics.wind.speed }} km/h</p>
+                                <p v-if="metrics.main">Humidity: {{ metrics.main.humidity }} %</p>
+                            </p>
+                            <p class="card-text"><small class="text-body-secondary">Predicts Weather for the next 2 hours at selected area</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.7/vue.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.8/axios.js"
+            integrity="sha512-+dJa1RvuE8/HFftifMtr7hqixdEkb/DizfXUZAA0pyZeVdNnyZyKy9RnIWi0JSWUznbCNbaQNn0E6nbtrdL+9g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+        ></script>
+
+        <script>
+            new Vue({
+                el: "#app",
+                data: {
+                    test: "Hello I'm Vue.js and Axios - Weather API (styled by Bootstrap)",
+                    metrics: [],
+                },
+                methods: {
+                    async fetchData() {
+                        res = await axios.get(
+                            "https://api.openweathermap.org/data/2.5/weather?lat=-1.286389&lon=36.817223&appid=fc21321e7e134d9e89b623c824bba1da"
+                        );
+                        this.metrics = res.data;
+                        console.log(res.data);
+                    },
+                },
+                mounted() {
+                    this.fetchData();
+                },
+                computed: {
+                    formattedLocalTime() {
+                        if (!this.metrics.dt || !this.metrics.timezone) return "Loading...";
+                        const localTimestamp = (this.metrics.dt + this.metrics.timezone) * 1000;
+                        const localDate = new Date(localTimestamp);
+
+                        return new Intl.DateTimeFormat("en-GB", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                            timeZone: "Africa/Nairobi"
+                        }).format(localDate);
+                    },
+                },
+            });
+        </script>
+    </body>
+</html>
