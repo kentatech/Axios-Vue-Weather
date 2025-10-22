@@ -35,15 +35,17 @@
                 </div>
             </div>
         </nav>
-        <form class="d-flex" role="search">
-             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+    <div class="main_container" id="app">
+        <form class="d-flex m-3" role="search" @submit.prevent="searchWeather">
+             <input v-model="query" class="form-control me-2" type="search" placeholder="Search City" aria-label="Search"/>
              <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
+
         <div class="class main" style="display: flex;justify-content: center;"> 
-            <div class="card mb-3" style="max-width: 540px" id="app">
+            <div class="card mb-3" style="max-width: 540px" >
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="/Visit Nairobi, Kenya.png" class="img-fluid rounded-start" alt="..." />
+                        <img src="/images/Visit Nairobi, Kenya.png" class="img-fluid rounded-start" alt="..." />
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
@@ -73,6 +75,7 @@
                 </div>
             </div>
         </div>
+    </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.7.7/vue.min.js"></script>
         <script
@@ -93,18 +96,30 @@
                 data: {
                     test: "Hello I'm Vue.js and Axios - Weather API (styled by Bootstrap)",
                     metrics: [],
+                    query: "",
                 },
                 methods: {
-                    async fetchData() {
-                        res = await axios.get(
-                            "https://api.openweathermap.org/data/2.5/weather?lat=-1.286389&lon=36.817223&appid=fc21321e7e134d9e89b623c824bba1da"
-                        );
+                    async fetchData(city) {
+                        res = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=fc21321e7e134d9e89b623c824bba1da`);
                         this.metrics = res.data;
                         console.log(res.data);
+                        // Now you can manually check if the request was successful-if so pass to frontend else show error
+                        if (res.status === 200) {
+                            this.metrics = res.data;
+                            console.log(res.data);
+                        } else {
+                            alert("City not found. Please enter a valid city name.");
+                            console.error("Error fetching weather:", res.status, res.data);
+                        }
+                    },
+                    searchWeather() {
+                        if (this.query.trim() !== "") {
+                            this.fetchData(this.query.trim());
+                        }
                     },
                 },
                 mounted() {
-                    this.fetchData();
+                    this.fetchData("Nairobi"); // Default city
                 },
                 computed: {
                     formattedLocalTime() {
@@ -120,7 +135,7 @@
                             hour: "2-digit",
                             minute: "2-digit",
                             hour12: true,
-                            timeZone: "Africa/Nairobi"
+                            timeZone: "UTC",
                         }).format(localDate);
                     },
                 },
